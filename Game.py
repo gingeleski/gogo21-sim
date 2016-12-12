@@ -1,24 +1,56 @@
 from Deck import Deck
 from Hand import Hand
 
+GOAL = 21
+
 
 class Game:
     @staticmethod
     def simulate():
         """
-        Simulates a single game, distributing one 52-card deck
-        across 4 possible hands
+        Simulates a single game, distributing one 52-card deck across
+        4 possible hands
         """
         blackjacks = 0
         discards = 0
         hands = []
-        for _ in range(1,5):
+        for _ in range(0, 4):
             hands.append(Hand())
         deck = Deck()
         this_card = deck.draw_card()
-        while this_card != None:
-            # TODO card-to-hand distribution logic
+        used_card = False
+        while this_card is not None:
+            for x in range(0, 4):
+                if hands[x].can_make_value(this_card, GOAL):
+                    hands[x].add_card(this_card)
+                    used_card = True
+                    break
+            if used_card is False:
+                card_counts = deck.get_card_counts()
+                for i in range(16, 0, -1):
+                    for key, val in card_counts.items():
+                        if val == i:
+                            for x in range(0, 4):
+                                if hands[x].can_make_value(this_card, GOAL - key):
+                                    hands[x].add_card(this_card)
+                                    used_card = True
+                                    break
+                            if used_card is True:
+                                break
+                    if used_card is True:
+                        break
+            if used_card is False:
+                for x in range(0, 4):
+                    if hands[x].can_add_card(this_card):
+                        hands[x].add_card(this_card)
+                        used_card = True
+                        break
+            if used_card is False:
+                discards += 1
             this_card = deck.draw_card()
+            used_card = False
+        for x in range(0, 4):
+            blackjacks += hands[x].get_blackjacks()
         return blackjacks, discards
 
     @staticmethod
@@ -35,10 +67,9 @@ class Game:
         print("Blackjacks / game = " + str(avg_blackjacks))
         print("Discards / game = " + str(avg_discards))
 
-    def run(self, num_runs=1):
+    def run(self, num_runs=100000):
         """
-        Conduct given number of simulations then
-        print results
+        Conduct given number of simulations then print results
         """
         run_counter = 1
         total_blackjacks = 0

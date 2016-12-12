@@ -46,3 +46,6 @@ class Hand:
                 self.possible_values.append(x)
             if MAX_VALUE in self.possible_values:
                 self.blackjack()
+
+    def get_blackjacks(self):
+        return self.blackjacks
