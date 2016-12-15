@@ -1,57 +1,41 @@
 from Deck import Deck
 from Hand import Hand
-
-GOAL = 21
+from random import shuffle
 
 
 class Game:
-    @staticmethod
-    def simulate():
+
+    def simulate(self):
         """
         Simulates a single game, distributing one 52-card deck across
         4 possible hands
         """
-        blackjacks = 0
-        discards = 0
-        hands = []
-        for _ in range(0, 4):
-            hands.append(Hand())
+        total_throwaways = 0
+        total_blackjacks = 0
+
         deck = Deck()
+
+        hands = []
+        for _ in range(1, 5):
+            hands.append(Hand())
+
         this_card = deck.draw_card()
-        used_card = False
+
         while this_card is not None:
-            for x in range(0, 4):
-                if hands[x].can_make_value(this_card, GOAL):
-                    hands[x].add_card(this_card)
+            used_card = False
+            for hand in hands:
+                if hand.can_add(this_card):
+                    hand.add(this_card)
                     used_card = True
                     break
             if used_card is False:
-                card_counts = deck.get_card_counts()
-                for i in range(16, 0, -1):
-                    for key, val in card_counts.items():
-                        if val == i:
-                            for x in range(0, 4):
-                                if hands[x].can_make_value(this_card, GOAL - key):
-                                    hands[x].add_card(this_card)
-                                    used_card = True
-                                    break
-                            if used_card is True:
-                                break
-                    if used_card is True:
-                        break
-            if used_card is False:
-                for x in range(0, 4):
-                    if hands[x].can_add_card(this_card):
-                        hands[x].add_card(this_card)
-                        used_card = True
-                        break
-            if used_card is False:
-                discards += 1
+                total_throwaways += 1
             this_card = deck.draw_card()
-            used_card = False
-        for x in range(0, 4):
-            blackjacks += hands[x].get_blackjacks()
-        return blackjacks, discards
+
+        for hand in hands:
+            total_blackjacks += hand.get_blackjacks()
+
+        return total_blackjacks, total_throwaways
 
     @staticmethod
     def print_results(num_runs, blackjacks, discards):
