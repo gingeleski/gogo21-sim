@@ -4,6 +4,16 @@ class Hand:
         self.possible_values = [0]
         self.blackjacks = 0
 
+    def can_make(self, card, value):
+        for pv in self.possible_values:
+            if pv + card.get_value() == value:
+                return True
+        if card.has_alt_value():
+            for pv in self.possible_values:
+                if pv + card.get_alt_value() == value:
+                    return True
+        return False
+
     def can_add(self, card):
         if (min(self.possible_values) + card.get_value()) <= 21:
             return True
